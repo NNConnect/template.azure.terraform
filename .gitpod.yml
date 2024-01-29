@@ -1,0 +1,29 @@
+image:
+  file: .cde.Dockerfile
+
+tasks:
+  - name: Versions
+    command: |
+      sh ./tools/environment/versions.sh
+  - name: Variables
+    command: |
+      sh ./tools/environment/variables.sh
+  - name: Azure CLI
+    command: |
+      sh ./tools/environment/azure_sp.sh
+      gp sync-done waitonazurecli
+  - name: Azure Storage
+    command: |
+      gp sync-await waitonazurecli
+      sh ./tools/infrastructure/statestorage.sh
+      gp sync-done waitonnstate
+  - name: Terraform
+    command: |
+      gp sync-await waitonnstate
+      sh ./tools/infrastructure/infrastructure.sh
+
+vscode:
+  extensions:
+    - hashicorp.terraform
+    - ms-azuretools.vscode-azureresourcegroups
+    - formulahendry.code-runner
